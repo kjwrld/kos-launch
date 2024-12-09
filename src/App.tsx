@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useEffect, useRef, useState } from "react";
+import SceneOne from "./components/SceneOne";
+import SceneTwo from "./components/SceneTwo";
+import SceneThree from "./components/SceneThree";
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scenes, setScenes] = useState([
+    <SceneThree key="0" />,
+    <SceneOne key="1" />,
+    <SceneTwo key="2" />,
+    <SceneThree key="3" />,
+    <SceneOne key="4" />,
+  ]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+
+    const handleScroll = () => {
+      if (!container) return;
+      const scrollTop = container.scrollTop;
+      const viewportHeight = window.innerHeight;
+
+      // Loop scrolling logic
+      if (scrollTop >= viewportHeight * (scenes.length - 1)) {
+        container.scrollTop = viewportHeight;
+      }
+      if (scrollTop <= 0) {
+        container.scrollTop = viewportHeight * (scenes.length - 2);
+      }
+    };
+
+    container?.addEventListener("scroll", handleScroll);
+    return () => container?.removeEventListener("scroll", handleScroll);
+  }, [scenes]);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div
+      ref={containerRef}
+      style={{
+        height: "100vh",
+        overflowY: "scroll",
+        scrollSnapType: "y mandatory",
+        background: "#fff", // Set background to white
+      }}
+    >
+      {scenes.map((Scene, index) => (
+        <div key={index} style={{ height: "100vh", width: "100vw" }}>
+          {Scene}
+        </div>
+      ))}
+    </div>
+  );
 }
-
-export default App
